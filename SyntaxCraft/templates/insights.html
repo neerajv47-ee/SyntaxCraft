@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+
+{% block title %}Code Insights - SyntaxCraft{% endblock %}
+{% block breadcrumb %}Code Insights{% endblock %}
+
+{% block content %}
+<div class="page-header" style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px;">
+  <div>
+    <h1 class="page-title">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="12" y1="16" x2="12" y2="12"/>
+        <line x1="12" y1="8" x2="12.01" y2="8"/>
+      </svg>
+      Code Insights &amp; Understanding
+    </h1>
+    <p class="page-description">
+      Static structural analysis, concepts, time &amp; space complexity, and line-by-line breakdown.
+    </p>
+  </div>
+
+  <!-- Task Switcher Dropdown -->
+  <div style="display: flex; align-items: center; gap: 10px;">
+    <form method="GET" action="{{ url_for('insights') }}" id="insightsTaskForm" style="display: flex; gap: 8px;">
+      <select name="task" class="form-control" style="padding: 8px 12px; font-size: 0.85rem;" onchange="this.form.submit()">
+        {% for t in all_tasks %}
+        <option value="{{ t.id }}" {% if current_task_id == t.id %}selected{% endif %}>
+          {{ t.name }}
+        </option>
+        {% endfor %}
+      </select>
+      <input type="hidden" name="difficulty" value="{{ current_difficulty }}">
+    </form>
+    <a href="{{ url_for('test_cases', task=current_task_id, difficulty=current_difficulty) }}" class="btn btn-primary btn-sm">
+      Run Test Cases &rarr;
+    </a>
+  </div>
+</div>
+
+<!-- Header Info Banner -->
+<div style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+  <div>
+    <span style="font-size: 0.75rem; text-transform: uppercase; color: var(--accent-blue); font-weight: 700; letter-spacing: 0.05em;">Currently Analyzing</span>
+    <h2 style="font-size: 1.35rem; font-weight: 700; margin-top: 2px;">{{ insight.task_name }}</h2>
+  </div>
+  <div style="display: flex; gap: 10px; align-items: center;">
+    <span class="tag-badge easy">{{ current_difficulty }} Mode</span>
+    <span class="tag-badge">Python 3</span>
+  </div>
+</div>
+
+<div class="workspace-grid" style="margin-bottom: 24px;">
+  <!-- Left: Logic, Concepts & Explanation -->
+  <div class="workspace-card" style="display: flex; flex-direction: column; gap: 20px;">
+    
+    <!-- 1. Logic / Approach -->
+    <div>
+      <h3 style="font-size: 1.05rem; font-weight: 700; color: var(--accent-blue); margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+        <span>🎯 Logic &amp; Approach</span>
+      </h3>
+      <p style="font-size: 0.92rem; color: var(--text-secondary); line-height: 1.65;">
+        {{ insight.logic_approach }}
+      </p>
+    </div>
+
+    <!-- 2. Python Concepts Used -->
+    <div>
+      <h3 style="font-size: 1.05rem; font-weight: 700; color: var(--accent-blue); margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+        <span>🧩 Python Concepts Used</span>
+      </h3>
+      <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+        {% for concept in insight.concepts_used %}
+        <span class="tag-badge" style="font-size: 0.8rem; padding: 4px 10px; background: rgba(56, 189, 248, 0.08); color: var(--accent-blue); border-color: rgba(56, 189, 248, 0.25);">
+          {{ concept }}
+        </span>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- 3. Beginner-Friendly Explanation -->
+    <div>
+      <h3 style="font-size: 1.05rem; font-weight: 700; color: var(--accent-blue); margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+        <span>💡 Beginner-Friendly Explanation</span>
+      </h3>
+      <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 14px 18px; font-size: 0.9rem; color: var(--text-secondary); line-height: 1.7;">
+        {{ insight.beginner_explanation }}
+      </div>
+    </div>
+
+    <!-- 4. Time & Space Complexity -->
+    <div>
+      <h3 style="font-size: 1.05rem; font-weight: 700; color: var(--accent-blue); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+        <span>⏱️ Complexity Analysis</span>
+      </h3>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+        <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 12px 16px;">
+          <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">Time Complexity</div>
+          <div style="font-size: 0.95rem; font-weight: 700; color: var(--accent-emerald); font-family: var(--font-mono); margin-top: 4px;">
+            {{ insight.time_complexity }}
+          </div>
+        </div>
+        <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 12px 16px;">
+          <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">Space Complexity</div>
+          <div style="font-size: 0.95rem; font-weight: 700; color: var(--accent-blue); font-family: var(--font-mono); margin-top: 4px;">
+            {{ insight.space_complexity }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. Improvement Suggestions -->
+    <div>
+      <h3 style="font-size: 1.05rem; font-weight: 700; color: var(--accent-amber); margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+        <span>🚀 Pro Tip &amp; Improvement Suggestion</span>
+      </h3>
+      <p style="font-size: 0.88rem; color: var(--text-secondary); line-height: 1.6; background: rgba(245, 158, 11, 0.06); border: 1px solid rgba(245, 158, 11, 0.2); border-radius: var(--radius-md); padding: 12px 16px;">
+        {{ insight.improvement_suggestion }}
+      </p>
+    </div>
+
+  </div>
+
+  <!-- Right: Line-by-Line Breakdown -->
+  <div class="workspace-card" style="display: flex; flex-direction: column;">
+    <div style="margin-bottom: 16px;">
+      <h2 class="card-title">Line-by-Line Structural Breakdown</h2>
+      <p class="card-subtitle" style="margin-bottom: 0;">Step-by-step logic tracing tailored for viva and classroom explanation.</p>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 14px; flex: 1;">
+      {% for item in insight.line_by_line %}
+      <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 14px; transition: border-color var(--transition-fast);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+          <span class="tag-badge" style="background: rgba(56, 189, 248, 0.15); color: var(--accent-blue);">
+            Lines {{ item.lines }}
+          </span>
+        </div>
+        <div class="code-panel" style="margin-bottom: 8px; border-radius: var(--radius-sm);">
+          <pre class="code-content" style="padding: 8px 12px; font-size: 0.82rem;">{{ item.code }}</pre>
+        </div>
+        <p style="font-size: 0.86rem; color: var(--text-secondary); line-height: 1.55; margin: 0;">
+          {{ item.explanation }}
+        </p>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Navigation actions -->
+    <div style="margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end;">
+      <a href="{{ url_for('generator') }}" class="btn btn-secondary btn-sm">
+        &larr; Back to Generator
+      </a>
+      <a href="{{ url_for('test_cases', task=current_task_id, difficulty=current_difficulty) }}" class="btn btn-primary btn-sm">
+        Next: Validate Test Cases &rarr;
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}

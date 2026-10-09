@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block title %}Practice Mode - SyntaxCraft{% endblock %}
+{% block breadcrumb %}Practice Mode{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1 class="page-title">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+    </svg>
+    Practice Mode
+  </h1>
+  <p class="page-description">
+    Solve curated beginner coding challenges with instant rule-based validation and feedback.
+  </p>
+</div>
+
+<!-- Category & Difficulty Filters -->
+<div style="display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; align-items: center; justify-content: space-between;">
+  <!-- Topic filters -->
+  <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+    <button class="btn btn-secondary btn-sm filter-pill active" data-category="all">
+      All Topics
+    </button>
+    <button class="btn btn-secondary btn-sm filter-pill" data-category="Conditionals">
+      Conditionals
+    </button>
+    <button class="btn btn-secondary btn-sm filter-pill" data-category="Loops">
+      Loops
+    </button>
+    <button class="btn btn-secondary btn-sm filter-pill" data-category="Strings">
+      Strings
+    </button>
+    <button class="btn btn-secondary btn-sm filter-pill" data-category="Functions">
+      Functions
+    </button>
+  </div>
+
+  <!-- Difficulty filter -->
+  <div style="display: flex; gap: 6px; align-items: center;">
+    <span style="font-size: 0.8rem; color: var(--text-muted);">Difficulty:</span>
+    <button class="btn btn-secondary btn-sm filter-diff active" data-diff="all">All</button>
+    <button class="btn btn-secondary btn-sm filter-diff" data-diff="Easy">Easy</button>
+    <button class="btn btn-secondary btn-sm filter-diff" data-diff="Medium">Medium</button>
+  </div>
+</div>
+
+<div class="workspace-grid" style="align-items: flex-start;">
+  <!-- Left Column: Problem List -->
+  <div>
+    <h3 class="card-title" style="margin-bottom: 14px;">Select a Challenge</h3>
+    <div style="display: flex; flex-direction: column; gap: 14px;" id="problemListContainer">
+      {% for problem in problems %}
+      <div 
+        class="problem-card problem-card-item {% if loop.first %}selected-problem{% endif %}" 
+        data-category="{{ problem.category }}"
+        data-difficulty="{{ problem.difficulty }}"
+        data-id="{{ problem.id }}"
+        data-title="{{ problem.title }}"
+        data-desc="{{ problem.description }}"
+        data-sample-in="{{ problem.sample_input }}"
+        data-sample-out="{{ problem.expected_output }}"
+        data-starter="{{ problem.starter_code }}"
+        style="cursor: pointer;"
+      >
+        <div class="problem-header">
+          <h4 class="problem-title" style="font-size: 0.98rem;">{{ problem.title }}</h4>
+          <span class="tag-badge {% if problem.difficulty == 'Easy' %}easy{% else %}medium{% endif %}">
+            {{ problem.difficulty }}
+          </span>
+        </div>
+
+        <p class="problem-desc" style="font-size: 0.85rem; margin-bottom: 10px;">
+          {{ problem.description }}
+        </p>
+
+        <div class="problem-meta" style="padding-top: 8px; margin-top: 8px;">
+          <span class="tag-badge" style="font-size: 0.72rem;">{{ problem.category }}</span>
+          <button type="button" class="btn btn-secondary btn-sm btn-select-problem" data-target-id="{{ problem.id }}" style="font-size: 0.76rem; padding: 4px 10px;">
+            Open Editor &rarr;
+          </button>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Right Column: Interactive Code Workspace & Checker -->
+  <div class="workspace-card" style="position: sticky; top: 80px;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+      <div>
+        <span class="tag-badge easy" id="activeProblemDiff" style="margin-bottom: 6px;">Easy</span>
+        <h3 class="card-title" id="activeProblemTitle">{{ problems[0].title }}</h3>
+      </div>
+      <button type="button" class="btn btn-secondary btn-sm" id="btnResetPractice">
+        Reset Code
+      </button>
+    </div>
+
+    <!-- Problem Description & Sample I/O -->
+    <p id="activeProblemDesc" style="font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 14px; line-height: 1.55;">
+      {{ problems[0].description }}
+    </p>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px;">
+      <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 8px 12px;">
+        <span style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Sample Input</span>
+        <div style="font-family: var(--font-mono); font-size: 0.82rem; color: var(--accent-blue);" id="activeSampleIn">{{ problems[0].sample_input }}</div>
+      </div>
+      <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 8px 12px;">
+        <span style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Expected Output</span>
+        <div style="font-family: var(--font-mono); font-size: 0.82rem; color: var(--accent-emerald);" id="activeSampleOut">{{ problems[0].expected_output }}</div>
+      </div>
+    </div>
+
+    <!-- Code Editor Area -->
+    <div class="form-group" style="margin-bottom: 16px;">
+      <label class="form-label" style="display: flex; justify-content: space-between;">
+        <span>Python Solution Editor</span>
+        <span style="font-size: 0.75rem; color: var(--text-muted);">student_solution.py</span>
+      </label>
+      <textarea 
+        id="practiceCodeEditor" 
+        class="form-control" 
+        rows="10" 
+        style="font-family: var(--font-mono); font-size: 0.88rem; line-height: 1.6; background-color: #0b101b;"
+      >{{ problems[0].starter_code }}</textarea>
+    </div>
+
+    <!-- Submit / Check Button -->
+    <div style="display: flex; gap: 10px; margin-bottom: 16px;">
+      <button type="button" class="btn btn-primary" id="btnCheckSolution" style="width: 100%;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+        Check Solution
+      </button>
+    </div>
+
+    <!-- Solution Feedback Banner -->
+    <div id="practiceFeedbackBox" style="display: none; border-radius: var(--radius-md); padding: 14px 18px; font-size: 0.88rem; line-height: 1.6;">
+      <div style="font-weight: 700; font-size: 0.95rem; margin-bottom: 4px;" id="feedbackStatusText"></div>
+      <div id="feedbackExplanationText" style="color: var(--text-secondary);"></div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

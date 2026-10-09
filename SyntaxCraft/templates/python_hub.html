@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}Python Hub - SyntaxCraft{% endblock %}
+{% block breadcrumb %}Python Hub{% endblock %}
+
+{% block content %}
+<div class="page-header" style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px;">
+  <div>
+    <h1 class="page-title">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+      </svg>
+      Python Hub &amp; Reference Guide
+    </h1>
+    <p class="page-description">
+      Master 17 essential Python programming concepts with concise explanations, syntax cheatsheets, code examples, and practice questions.
+    </p>
+  </div>
+
+  <span class="version-chip" style="font-size: 0.82rem;">17 Core Topics</span>
+</div>
+
+<!-- Category Filters & Topic Search -->
+<div style="display: flex; gap: 10px; margin-bottom: 24px; flex-wrap: wrap; align-items: center; justify-content: space-between;">
+  <div style="display: flex; gap: 8px; flex-wrap: wrap;" id="hubFilterButtons">
+    <button class="btn btn-secondary btn-sm hub-filter-btn active" data-category="all">All Topics</button>
+    <button class="btn btn-secondary btn-sm hub-filter-btn" data-category="Basics">Basics</button>
+    <button class="btn btn-secondary btn-sm hub-filter-btn" data-category="Control Flow">Control Flow</button>
+    <button class="btn btn-secondary btn-sm hub-filter-btn" data-category="Data Structures">Data Structures</button>
+    <button class="btn btn-secondary btn-sm hub-filter-btn" data-category="Functions">Functions</button>
+    <button class="btn btn-secondary btn-sm hub-filter-btn" data-category="Functional Tools">Functional Tools</button>
+    <button class="btn btn-secondary btn-sm hub-filter-btn" data-category="Advanced">Advanced</button>
+  </div>
+
+  <div style="min-width: 240px;">
+    <input 
+      type="text" 
+      id="hubSearchInput" 
+      class="form-control" 
+      placeholder="Search topics (e.g. loops, lambda)..." 
+      style="padding: 6px 14px; font-size: 0.85rem;"
+    />
+  </div>
+</div>
+
+<!-- 17 Topics Grid -->
+<div class="hub-grid" id="hubCardsGrid">
+  {% for topic in topics %}
+  <div class="hub-card hub-topic-card" data-category="{{ topic.category }}" data-title="{{ topic.title | lower }}">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+      <h2 class="hub-card-title" style="margin-bottom: 0;">{{ topic.title }}</h2>
+      <span class="tag-badge" style="font-size: 0.72rem;">{{ topic.category }}</span>
+    </div>
+
+    <!-- Explanation -->
+    <p style="font-size: 0.88rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 12px;">
+      {{ topic.explanation }}
+    </p>
+
+    <!-- Syntax Box -->
+    <div style="background: rgba(0,0,0,0.3); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 8px 12px; margin-bottom: 12px;">
+      <div style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; margin-bottom: 2px;">Basic Syntax</div>
+      <code style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent-blue); white-space: pre-wrap;">{{ topic.syntax }}</code>
+    </div>
+
+    <!-- Example Code Panel -->
+    <div class="code-panel" style="margin-bottom: 12px;">
+      <div class="code-panel-header" style="padding: 6px 12px;">
+        <span class="panel-title" style="font-size: 0.75rem;">example.py</span>
+        <button class="btn btn-secondary btn-sm btn-copy" data-target="code-topic-{{ topic.id }}" style="padding: 2px 8px; font-size: 0.72rem;">
+          Copy
+        </button>
+      </div>
+      <pre class="code-content" id="code-topic-{{ topic.id }}" style="padding: 10px 14px; font-size: 0.8rem; margin: 0;">{{ topic.example }}</pre>
+    </div>
+
+    <!-- Practice Question -->
+    <div style="background: rgba(99, 102, 241, 0.06); border: 1px dashed rgba(99, 102, 241, 0.3); border-radius: var(--radius-sm); padding: 10px 14px;">
+      <div style="font-size: 0.75rem; color: var(--accent-indigo); font-weight: 700; margin-bottom: 2px;">
+        📝 Practice Challenge:
+      </div>
+      <p style="font-size: 0.82rem; color: var(--text-secondary); margin: 0;">
+        {{ topic.question }}
+      </p>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

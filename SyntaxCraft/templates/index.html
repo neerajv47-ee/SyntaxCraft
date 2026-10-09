@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block title %}SyntaxCraft - Home{% endblock %}
+{% block breadcrumb %}Home{% endblock %}
+
+{% block content %}
+<div class="home-container">
+  
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="hero-badge">
+      <span>🚀 Beginner-Focused Python Studio</span>
+    </div>
+    
+    <h1 class="hero-title">
+      Welcome to <span class="gradient-text">SyntaxCraft</span>
+    </h1>
+    
+    <p class="hero-tagline">
+      Turn your ideas into Python code — and understand it.
+    </p>
+    
+    <p class="hero-description">
+      SyntaxCraft is an intuitive learning platform designed specifically for students and beginners. 
+      Express your programming logic in natural English, generate clean Python code, explore line-by-line 
+      structural insights, and validate logic using hands-on test cases.
+    </p>
+    
+    <div class="hero-actions">
+      <a href="{{ url_for('generator') }}" class="btn btn-primary">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <polygon points="5 3 19 12 5 21 5 3"></polygon>
+        </svg>
+        Start Coding
+      </a>
+      <a href="{{ url_for('practice') }}" class="btn btn-secondary">
+        Browse Practice Challenges
+      </a>
+    </div>
+  </section>
+
+  <!-- Key Features Section -->
+  <section class="features-section">
+    <div class="features-header">
+      <h2 class="features-title">Core Learning Modules</h2>
+      <p class="features-subtitle">Explore the tools built to bridge the gap between English concepts and Python code.</p>
+    </div>
+
+    <div class="features-grid">
+      <!-- 1. Code Generator Card -->
+      <a href="{{ url_for('generator') }}" class="feature-card">
+        <div class="feature-icon-wrapper">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="16 18 22 12 16 6"/>
+            <polyline points="8 6 2 12 8 18"/>
+          </svg>
+        </div>
+        <h3 class="feature-title">Code Generator</h3>
+        <p class="feature-desc">
+          Describe what you want to achieve in plain English, and convert your instructions into structured, well-formatted Python syntax.
+        </p>
+        <span class="feature-link-text">
+          Launch Generator &rarr;
+        </span>
+      </a>
+
+      <!-- 2. Code Insights Card -->
+      <a href="{{ url_for('insights') }}" class="feature-card">
+        <div class="feature-icon-wrapper">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="16" x2="12" y2="12"/>
+            <line x1="12" y1="8" x2="12.01" y2="8"/>
+          </svg>
+        </div>
+        <h3 class="feature-title">Code Insights</h3>
+        <p class="feature-desc">
+          Break down Python snippets into line-by-line explanations, understand keywords, logic flow, and avoid common beginner syntax mistakes.
+        </p>
+        <span class="feature-link-text">
+          Explore Insights &rarr;
+        </span>
+      </a>
+
+      <!-- 3. Test Cases Card -->
+      <a href="{{ url_for('test_cases') }}" class="feature-card">
+        <div class="feature-icon-wrapper">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+            <polyline points="22 4 12 14.01 9 11.01"/>
+          </svg>
+        </div>
+        <h3 class="feature-title">Test Cases</h3>
+        <p class="feature-desc">
+          Validate program logic by checking sample inputs against expected outputs to ensure your solution covers edge cases.
+        </p>
+        <span class="feature-link-text">
+          Open Test Cases &rarr;
+        </span>
+      </a>
+
+      <!-- 4. Practice Mode Card -->
+      <a href="{{ url_for('practice') }}" class="feature-card">
+        <div class="feature-icon-wrapper">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+          </svg>
+        </div>
+        <h3 class="feature-title">Practice Mode</h3>
+        <p class="feature-desc">
+          Tackle curated beginner coding problems with guided steps across variables, conditionals, loops, strings, and functions.
+        </p>
+        <span class="feature-link-text">
+          Start Practicing &rarr;
+        </span>
+      </a>
+    </div>
+  </section>
+
+</div>
+{% endblock %}

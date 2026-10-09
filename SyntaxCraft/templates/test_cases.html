@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block title %}Test Cases - SyntaxCraft{% endblock %}
+{% block breadcrumb %}Test Cases{% endblock %}
+
+{% block content %}
+<div class="page-header" style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px;">
+  <div>
+    <h1 class="page-title">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+        <polyline points="22 4 12 14.01 9 11.01"/>
+      </svg>
+      Test Cases &amp; Validation
+    </h1>
+    <p class="page-description">
+      Predefined, safe test suites verifying edge cases, boundary conditions, and expected outputs.
+    </p>
+  </div>
+
+  <!-- Task Switcher Dropdown -->
+  <div style="display: flex; align-items: center; gap: 10px;">
+    <form method="GET" action="{{ url_for('test_cases') }}" id="testCaseTaskForm" style="display: flex; gap: 8px;">
+      <select name="task" class="form-control" style="padding: 8px 12px; font-size: 0.85rem;" onchange="this.form.submit()">
+        {% for t in all_tasks %}
+        <option value="{{ t.id }}" {% if current_task_id == t.id %}selected{% endif %}>
+          {{ t.name }}
+        </option>
+        {% endfor %}
+      </select>
+      <input type="hidden" name="difficulty" value="{{ current_difficulty }}">
+    </form>
+    <a href="{{ url_for('insights', task=current_task_id, difficulty=current_difficulty) }}" class="btn btn-secondary btn-sm">
+      &larr; View Insights
+    </a>
+  </div>
+</div>
+
+<!-- Test Suite Header Summary Card -->
+<div style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 22px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+  <div>
+    <span style="font-size: 0.75rem; text-transform: uppercase; color: var(--accent-emerald); font-weight: 700; letter-spacing: 0.05em;">Validating Suite</span>
+    <h2 style="font-size: 1.35rem; font-weight: 700; margin-top: 2px;">{{ test_data.task_name }}</h2>
+    <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 4px; margin-bottom: 0;">
+      Executing verification tests in a secure, controlled environment without arbitrary code execution.
+    </p>
+  </div>
+
+  <div style="display: flex; gap: 12px; align-items: center;">
+    <div style="text-align: right;">
+      <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Pass Rate</div>
+      <div style="font-size: 1.25rem; font-weight: 800; color: var(--accent-emerald); font-family: var(--font-mono);" id="passRateBadge">
+        {{ test_data.pass_rate }}
+      </div>
+    </div>
+    <button type="button" class="btn btn-primary btn-sm" id="btnRunTestCases">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <polygon points="5 3 19 12 5 21 5 3"></polygon>
+      </svg>
+      Run All Tests
+    </button>
+  </div>
+</div>
+
+<!-- Run Tests Feedback Alert Banner -->
+<div id="testRunSuccessAlert" style="display: none; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: var(--radius-md); padding: 14px 18px; margin-bottom: 20px; color: #a7f3d0; font-size: 0.9rem;">
+  <strong>✓ All Test Cases Passed Successfully!</strong> ({{ test_data.passed }}/{{ test_data.total }} tests verified against expected specifications).
+</div>
+
+<!-- Test Cases Table -->
+<div class="workspace-card" style="margin-bottom: 24px;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+    <h3 class="card-title" style="margin-bottom: 0;">Automated Test Verification Matrix</h3>
+    <span class="tag-badge">{{ test_data.total }} Test Cases</span>
+  </div>
+
+  <div class="history-table-container">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th style="width: 12%;">Case #</th>
+          <th style="width: 25%;">Test Description</th>
+          <th style="width: 25%;">Input Parameters</th>
+          <th style="width: 18%;">Expected Output</th>
+          <th style="width: 10%;">Actual Output</th>
+          <th style="width: 10%;">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for case in test_data.test_cases %}
+        <tr class="test-case-row">
+          <td><strong style="color: var(--accent-blue);">Test {{ case.test_id }}</strong></td>
+          <td style="color: var(--text-primary);">{{ case.case_name }}</td>
+          <td><code>{{ case.input }}</code></td>
+          <td><code style="color: var(--accent-emerald);">{{ case.expected }}</code></td>
+          <td><code class="actual-val-cell" style="color: var(--accent-emerald);">{{ case.actual }}</code></td>
+          <td>
+            <span class="tag-badge easy test-status-badge" style="display: inline-flex; align-items: center; gap: 4px;">
+              <span>✓</span> {{ case.status }}
+            </span>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Bottom Navigation -->
+  <div style="margin-top: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+    <a href="{{ url_for('insights', task=current_task_id, difficulty=current_difficulty) }}" class="btn btn-secondary btn-sm">
+      &larr; Back to Code Insights
+    </a>
+    <div style="display: flex; gap: 10px;">
+      <a href="{{ url_for('practice') }}" class="btn btn-primary btn-sm">
+        Next: Practice Challenges &rarr;
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}

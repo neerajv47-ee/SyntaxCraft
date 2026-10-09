@@ -1,0 +1,182 @@
+{% extends "base.html" %}
+
+{% block title %}Code Generator - SyntaxCraft{% endblock %}
+{% block breadcrumb %}Code Generator{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1 class="page-title">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <polyline points="16 18 22 12 16 6"/>
+      <polyline points="8 6 2 12 8 18"/>
+    </svg>
+    English to Python Code Generator
+  </h1>
+  <p class="page-description">
+    Describe what you want to achieve in plain English, choose a difficulty level, and convert it into clean Python code.
+  </p>
+</div>
+
+<!-- Rule-Based Engine Status Banner -->
+<div class="phase-notice">
+  <span class="notice-icon">⚡</span>
+  <div class="notice-text">
+    <strong>Deterministic Rule-Based Engine:</strong> Converts natural English instructions into structured Python solutions using syntax pattern rules without external AI or third-party APIs.
+  </div>
+</div>
+
+<div class="workspace-grid">
+  <!-- Left Column: English Instruction Input Form -->
+  <div class="workspace-card">
+    <h2 class="card-title">1. Describe Your Task</h2>
+    <p class="card-subtitle">Enter your programming requirement or select an example prompt below.</p>
+
+    <form id="generatorForm" action="{{ url_for('generator') }}" method="POST">
+      <div class="form-group">
+        <label for="instructionInput" class="form-label">Problem Description</label>
+        <textarea 
+          id="instructionInput" 
+          name="prompt"
+          class="form-control" 
+          rows="5" 
+          placeholder="Describe what you want to code in simple English..."
+          required
+        >{{ user_prompt or '' }}</textarea>
+      </div>
+
+      <!-- Difficulty Selector -->
+      <div class="form-group">
+        <label for="difficultySelect" class="form-label">Difficulty Level</label>
+        <select id="difficultySelect" name="difficulty" class="form-control">
+          <option value="Beginner" {% if difficulty == 'Beginner' or not difficulty %}selected{% endif %}>
+            Beginner (Simple syntax, basic loops &amp; conditions)
+          </option>
+          <option value="Intermediate" {% if difficulty == 'Intermediate' %}selected{% endif %}>
+            Intermediate (Reusable functions, built-in methods)
+          </option>
+          <option value="Advanced" {% if difficulty == 'Advanced' %}selected{% endif %}>
+            Advanced (Compact expressions, optimized logic)
+          </option>
+        </select>
+      </div>
+
+      <!-- Quick Example Prompts -->
+      <div class="form-group" style="margin-bottom: 22px;">
+        <label class="form-label" style="font-size: 0.8rem; color: var(--text-secondary);">
+          Try an example prompt:
+        </label>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px;" id="examplePromptsContainer">
+          <button type="button" class="btn btn-secondary btn-sm prompt-chip" data-prompt="Take two numbers and print their sum">
+            Take two numbers and print their sum
+          </button>
+          <button type="button" class="btn btn-secondary btn-sm prompt-chip" data-prompt="Check whether a number is even or odd">
+            Check whether a number is even or odd
+          </button>
+          <button type="button" class="btn btn-secondary btn-sm prompt-chip" data-prompt="Print numbers from 1 to 10">
+            Print numbers from 1 to 10
+          </button>
+          <button type="button" class="btn btn-secondary btn-sm prompt-chip" data-prompt="Find the largest of three numbers">
+            Find the largest of three numbers
+          </button>
+          <button type="button" class="btn btn-secondary btn-sm prompt-chip" data-prompt="Find the factorial of a number">
+            Find the factorial of a number
+          </button>
+          <button type="button" class="btn btn-secondary btn-sm prompt-chip" data-prompt="Reverse a string">
+            Reverse a string
+          </button>
+          <button type="button" class="btn btn-secondary btn-sm prompt-chip" data-prompt="Check whether a number is prime">
+            Check whether a number is prime
+          </button>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <button type="submit" id="btnGenerateCode" class="btn btn-primary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+          </svg>
+          Generate Python Code
+        </button>
+
+        <button type="button" id="btnClearInput" class="btn btn-secondary">
+          Clear
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Right Column: Generated Code Output Section -->
+  <div class="workspace-card" style="display: flex; flex-direction: column;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+      <div>
+        <h2 class="card-title" style="margin-bottom: 2px;">2. Generated Python Code</h2>
+        <span class="tag-badge" id="taskBadge">
+          {% if generated_result and generated_result.success %}
+            {{ generated_result.task }} ({{ generated_result.difficulty }})
+          {% elif generated_result and not generated_result.success %}
+            Unsupported Request
+          {% else %}
+            Ready to Generate
+          {% endif %}
+        </span>
+      </div>
+      <button class="btn btn-secondary btn-sm btn-copy" data-target="generatorCodeOutput" id="btnCopyCode">
+        Copy Code
+      </button>
+    </div>
+
+    <!-- Alert Banner for Unsupported Prompts -->
+    <div id="unsupportedAlert" style="display: {% if generated_result and not generated_result.success %}block{% else %}none{% endif %}; background: rgba(244, 63, 94, 0.1); border: 1px solid rgba(244, 63, 94, 0.35); border-radius: var(--radius-md); padding: 12px 16px; margin-bottom: 12px; color: #fecdd3; font-size: 0.88rem;">
+      <strong>Notice:</strong> <span id="unsupportedMessage">Sorry, SyntaxCraft currently does not support this type of problem. Try one of the supported examples.</span>
+    </div>
+
+    <!-- Code Panel Container -->
+    <div class="code-panel" style="flex: 1; display: flex; flex-direction: column;">
+      <div class="code-panel-header">
+        <div class="terminal-dots">
+          <span class="dot dot-red"></span>
+          <span class="dot dot-yellow"></span>
+          <span class="dot dot-green"></span>
+        </div>
+        <span class="panel-title" id="codePanelFilename">solution.py</span>
+      </div>
+      
+      <pre class="code-content" id="generatorCodeOutput" style="flex: 1; margin: 0;">{% if generated_result %}{{ generated_result.code }}{% else %}# Welcome to SyntaxCraft Code Generator!
+#
+# Enter an English instruction on the left or click one of the examples,
+# then click "Generate Python Code".
+#
+# Supported tasks include:
+#  - Addition, Subtraction, Multiplication, Division of two numbers
+#  - Even or odd number, Positive/negative/zero
+#  - Largest or smallest of three numbers
+#  - Print numbers 1 to N, Sum of numbers 1 to N
+#  - Factorial, Reverse string, Palindrome, Count vowels, Prime check
+{% endif %}</pre>
+    </div>
+
+    <!-- Direct Navigation to Insights & Test Cases -->
+    <div style="margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border-subtle); display: flex; gap: 12px; flex-wrap: wrap; align-items: center; justify-content: space-between;">
+      <span style="font-size: 0.82rem; color: var(--text-secondary);">Next Steps:</span>
+      <div style="display: flex; gap: 10px;">
+        <a href="{{ url_for('insights', task=(generated_result.task_id if generated_result and generated_result.success else 'largest_of_three'), difficulty=(generated_result.difficulty if generated_result else 'Beginner')) }}" class="btn btn-secondary btn-sm" id="btnNextInsights">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="16" x2="12" y2="12"/>
+            <line x1="12" y1="8" x2="12.01" y2="8"/>
+          </svg>
+          Code Insights &rarr;
+        </a>
+        <a href="{{ url_for('test_cases', task=(generated_result.task_id if generated_result and generated_result.success else 'largest_of_three'), difficulty=(generated_result.difficulty if generated_result else 'Beginner')) }}" class="btn btn-secondary btn-sm" id="btnNextTestCases">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+            <polyline points="22 4 12 14.01 9 11.01"/>
+          </svg>
+          Test Cases &rarr;
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
